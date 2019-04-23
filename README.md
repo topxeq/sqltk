@@ -55,3 +55,6 @@ or in short:
 	tk.Plvsr(sqltk.QueryDBNS(dbT, "select count(*) from TXTEST"))
 
 	tk.Plvsr(sqltk.QueryDBI(dbT, "select * from TXTEST"))
+	
+	tk.Plvsr(sqltk.QueryDBNS(dbT, "select * from TXTEST where ID=?", 3))
+
