@@ -4,32 +4,53 @@ import (
 	"database/sql"
 
 	"github.com/topxeq/tk"
-	_ "gopkg.in/goracle.v2"
 )
 
-// RecordCell hold each cell in result set for SQL query
-// Type: 0 - unknown, 1 - string, 2 - int, 3 - float64, 4 - datetime
-type RecordCell struct {
-	Name   string
-	Type   string
-	IsNull bool
-	Value  string
-}
-
-func (p *RecordCell) GetIntValue(defaultA int) int {
-	return tk.StrToIntWithDefaultValue(p.Value, defaultA)
-}
-
-func SelectDB(connectStrA string, sqlStrA string) ([][]RecordCell, error) {
-	dbT, errT := sql.Open("goracle", connectStrA)
+// ConnectDB connected the database, don't forget to close it(probably by defer function)
+func ConnectDB(driverStrA string, connectStrA string) (*sql.DB, error) {
+	dbT, errT := sql.Open(driverStrA, connectStrA)
 
 	if errT != nil {
 		return nil, tk.Errf("failed to open DB: %v", errT.Error())
 	}
 
-	defer dbT.Close()
+	errT = dbT.Ping()
 
-	rowsT, errT := dbT.Query(sqlStrA)
+	if errT != nil {
+		return nil, tk.Errf("failed to ping DB: %v", errT.Error())
+	}
+
+	return dbT, nil
+}
+
+// ExecV execute SQL statement, get the results(insert id and rows afftected), passing parameters is supported as well.
+func ExecV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int64, int64, error) {
+	resultT, errT := dbA.Exec(sqlStrA, argsA...)
+	if errT != nil {
+		return 0, 0, tk.Errf("failed to exec: %v", errT.Error())
+	}
+
+	insertIDT, errT := resultT.LastInsertId()
+
+	if errT != nil {
+		insertIDT = 0
+		// return 0, 0, tk.Errf("failed to get result insertID: %v", errT.Error())
+	}
+
+	rowAffectedT, errT := resultT.RowsAffected()
+
+	if errT != nil {
+		rowAffectedT = 0
+		// return 0, 0, tk.Errf("failed to get result rowAffected: %v", errT.Error())
+	}
+
+	return insertIDT, rowAffectedT, nil
+
+}
+
+// QueryDBS execute a SQL query and return result set(first row will be the column names), all values will be string type, cannot handle null values, passing parameters is supported as well.
+func QueryDBS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
+	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
 		return nil, tk.Errf("failed to run query: %v", errT.Error())
@@ -37,94 +58,9 @@ func SelectDB(connectStrA string, sqlStrA string) ([][]RecordCell, error) {
 
 	defer rowsT.Close()
 
-	var columnSet []RecordCell = nil
-	var columnCountA = 0
-
-	// var resultSet = make([][]RecordCell, 0)
-
-	for rowsT.Next() {
-
-		if columnSet == nil {
-			columnInfoT, errT := rowsT.ColumnTypes()
-
-			if errT != nil {
-				return nil, tk.Errf("failed to retrieve column info: %v", errT.Error())
-			}
-
-			columnSet = make([]RecordCell, 0)
-
-			for _, v := range columnInfoT {
-				isNullableT, okT := v.Nullable()
-
-				if !okT {
-					isNullableT = false
-				}
-
-				precisionT, scaleT, okT := v.DecimalSize()
-
-				var precisionStr = ""
-
-				if okT {
-					precisionStr = tk.Spr("%v.%v", precisionT, scaleT)
-				}
-
-				rcT := RecordCell{Name: v.Name(), Type: v.DatabaseTypeName(), IsNull: isNullableT, Value: precisionStr}
-
-				columnSet = append(columnSet, rcT)
-				// tk.Pl("%v: %#v", i, v)
-
-				// tk.Pl("scanType: %#v", v.ScanType().Kind())
-			}
-
-			tk.Pl("columnSet: %#v", columnSet)
-		}
-
-		columnCountA = len(columnSet)
-
-		for j := 0; j < columnCountA; j++ {
-
-		}
-
-		// rowsT.ColumnTypes
-
-		// errT = rowsT.Scan(&id, &userID)
-		// if errT != nil {
-		// 	return nil, tk.Errf("遍历查询结果时发生错误：%v", errT.Error())
-		// }
-
-		// sb.WriteString(tk.Spr("id: %v, userID: %v\n", id, userID))
-	}
-
-	errT = rowsT.Err()
-	if errT != nil {
-		return nil, tk.Errf("查询结果有错误：%v", errT.Error())
-	}
-
-	return nil, nil
-}
-
-func SelectDBS(connectStrA string, sqlStrA string) ([][]string, error) {
-	dbT, errT := sql.Open("goracle", connectStrA)
-
-	if errT != nil {
-		return nil, tk.Errf("failed to open DB: %v", errT.Error())
-	}
-
-	defer dbT.Close()
-
-	rowsT, errT := dbT.Query(sqlStrA)
-
-	if errT != nil {
-		return nil, tk.Errf("failed to run query: %v", errT.Error())
-	}
-
-	defer rowsT.Close()
-
-	var resultSet [][]string = make([][]string, 0)
+	resultSet := make([][]string, 0)
 	var rowCountT = 0
 	var columnSetT []string = nil
-
-	// var valueT string
 
 	for rowsT.Next() {
 		rowCountT++
@@ -134,6 +70,8 @@ func SelectDBS(connectStrA string, sqlStrA string) ([][]string, error) {
 			if errT != nil {
 				return nil, tk.Errf("failed to get columns of row %v: %v", rowCountT, errT.Error())
 			}
+
+			resultSet = append(resultSet, columnSetT)
 		}
 
 		columnLenT := len(columnSetT)
@@ -160,16 +98,9 @@ func SelectDBS(connectStrA string, sqlStrA string) ([][]string, error) {
 	return resultSet, nil
 }
 
-func SelectDBI(connectStrA string, sqlStrA string) ([][]interface{}, error) {
-	dbT, errT := sql.Open("goracle", connectStrA)
-
-	if errT != nil {
-		return nil, tk.Errf("failed to open DB: %v", errT.Error())
-	}
-
-	defer dbT.Close()
-
-	rowsT, errT := dbT.Query(sqlStrA)
+// QueryDBNS execute a SQL query and return result set(first row will be the column names), all values will be string type, can handle null values, passing parameters is supported as well.
+func QueryDBNS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
+	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
 		return nil, tk.Errf("failed to run query: %v", errT.Error())
@@ -177,11 +108,9 @@ func SelectDBI(connectStrA string, sqlStrA string) ([][]interface{}, error) {
 
 	defer rowsT.Close()
 
-	var resultSet [][]interface{} = make([][]interface{}, 0)
+	resultSet := make([][]string, 0)
 	var rowCountT = 0
 	var columnSetT []string = nil
-
-	// var valueT string
 
 	for rowsT.Next() {
 		rowCountT++
@@ -191,11 +120,15 @@ func SelectDBI(connectStrA string, sqlStrA string) ([][]interface{}, error) {
 			if errT != nil {
 				return nil, tk.Errf("failed to get columns of row %v: %v", rowCountT, errT.Error())
 			}
+
+			resultSet = append(resultSet, columnSetT)
 		}
 
 		columnLenT := len(columnSetT)
+
 		var resultRow = make([]interface{}, columnLenT)
 		var resultRowP = make([]interface{}, columnLenT)
+		var resultRowS = make([]string, columnLenT)
 
 		for k := 0; k < columnLenT; k++ {
 			resultRowP[k] = &(resultRow[k])
@@ -206,7 +139,16 @@ func SelectDBI(connectStrA string, sqlStrA string) ([][]interface{}, error) {
 			return nil, tk.Errf("failed to scan %v: %v", rowCountT, errT.Error())
 		}
 
-		resultSet = append(resultSet, resultRow)
+		for k := 0; k < columnLenT; k++ {
+			if resultRow[k] == nil {
+				resultRowS[k] = ""
+				continue
+			}
+
+			resultRowS[k] = tk.Spr("%v", resultRow[k])
+		}
+
+		resultSet = append(resultSet, resultRowS)
 	}
 
 	errT = rowsT.Err()
@@ -217,23 +159,10 @@ func SelectDBI(connectStrA string, sqlStrA string) ([][]interface{}, error) {
 	return resultSet, nil
 }
 
-func SelectDBVI(connectStrA string, sqlStrA string, argsA ...interface{}) ([][]interface{}, error) {
-	dbT, errT := sql.Open("goracle", connectStrA)
+// QueryDBI execute a SQL query and return result set(first row will be the column names), all values will be interface{} type, passing parameters is supported as well.
+func QueryDBI(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]interface{}, error) {
 
-	if errT != nil {
-		return nil, tk.Errf("failed to open DB: %v", errT.Error())
-	}
-
-	defer dbT.Close()
-
-	stmtT, errT := dbT.Prepare(sqlStrA)
-	if errT != nil {
-		return nil, tk.Errf("failed to prepare SQL statement: %v", errT.Error())
-	}
-
-	defer stmtT.Close()
-
-	rowsT, errT := stmtT.Query(argsA...)
+	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
 		return nil, tk.Errf("failed to run query: %v", errT.Error())
@@ -241,11 +170,9 @@ func SelectDBVI(connectStrA string, sqlStrA string, argsA ...interface{}) ([][]i
 
 	defer rowsT.Close()
 
-	var resultSet [][]interface{} = make([][]interface{}, 0)
+	resultSet := make([][]interface{}, 0)
 	var rowCountT = 0
 	var columnSetT []string = nil
-
-	// var valueT string
 
 	for rowsT.Next() {
 		rowCountT++
@@ -255,9 +182,19 @@ func SelectDBVI(connectStrA string, sqlStrA string, argsA ...interface{}) ([][]i
 			if errT != nil {
 				return nil, tk.Errf("failed to get columns of row %v: %v", rowCountT, errT.Error())
 			}
+
+			lenT := len(columnSetT)
+			setT := make([]interface{}, lenT)
+			for k := 0; k < lenT; k++ {
+				setT[k] = columnSetT[k]
+			}
+
+			resultSet = append(resultSet, setT)
+
 		}
 
 		columnLenT := len(columnSetT)
+
 		var resultRow = make([]interface{}, columnLenT)
 		var resultRowP = make([]interface{}, columnLenT)
 
