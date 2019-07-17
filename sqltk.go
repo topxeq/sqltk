@@ -17,6 +17,7 @@ func ConnectDB(driverStrA string, connectStrA string) (*sql.DB, error) {
 	errT = dbT.Ping()
 
 	if errT != nil {
+		dbT.Close()
 		return nil, tk.Errf("failed to ping DB: %v", errT.Error())
 	}
 
