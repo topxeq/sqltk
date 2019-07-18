@@ -218,3 +218,27 @@ func QueryDBI(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]interface{
 
 	return resultSet, nil
 }
+
+// QueryDBCount execute a SQL query for count(select count(*)), -1 indicates error, can handle null values, passing parameters is supported as well.
+func QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int, error) {
+	rowsT, errT := dbA.Query(sqlStrA, argsA...)
+
+	if errT != nil {
+		return -1, tk.Errf("failed to run query: %v", errT.Error())
+	}
+
+	defer rowsT.Close()
+
+	var countT int = -1
+
+	for rowsT.Next() {
+		errT = rowsT.Scan(&countT)
+		if errT != nil {
+			return -1, tk.Errf("failed to scan: %v", errT.Error())
+		}
+
+		break
+	}
+
+	return countT, nil
+}

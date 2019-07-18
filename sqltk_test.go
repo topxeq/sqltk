@@ -104,4 +104,6 @@ func Test001(t *testing.T) {
 	// passing parameters in SQL statement is supported
 	tk.Plvsr(QueryDBNS(dbT, "select * from TXTEST where ID=?", 3))
 
+	tk.Plvsr(QueryDBCount(dbT, "select count(*) from TXTEST"))
+
 }
