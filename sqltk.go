@@ -242,3 +242,24 @@ func QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int, error
 
 	return countT, nil
 }
+
+// OneLineRecordToMap convert SQL result in [][]string (2 lines, first is the header) to map[string]string
+func OneLineRecordToMap(recA [][]string) map[string]string {
+	if recA == nil {
+		return nil
+	}
+
+	if len(recA) < 2 {
+		return nil
+	}
+
+	lenT := len(recA[0])
+
+	mapT := make(map[string]string, lenT)
+
+	for i := 0; i < lenT; i++ {
+		mapT[recA[0][i]] = recA[1][i]
+	}
+
+	return mapT
+}
