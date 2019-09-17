@@ -243,6 +243,30 @@ func QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int, error
 	return countT, nil
 }
 
+// QueryDBString execute a SQL query for a one string result, can handle null values, passing parameters is supported as well.
+func QueryDBString(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (string, error) {
+	rowsT, errT := dbA.Query(sqlStrA, argsA...)
+
+	if errT != nil {
+		return "", tk.Errf("failed to run query: %v", errT.Error())
+	}
+
+	defer rowsT.Close()
+
+	var strT string = ""
+
+	for rowsT.Next() {
+		errT = rowsT.Scan(&strT)
+		if errT != nil {
+			return "", tk.Errf("failed to scan: %v", errT.Error())
+		}
+
+		break
+	}
+
+	return strT, nil
+}
+
 // OneLineRecordToMap convert SQL result in [][]string (2 lines, first is the header) to map[string]string
 func OneLineRecordToMap(recA [][]string) map[string]string {
 	if recA == nil {
