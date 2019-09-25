@@ -261,10 +261,10 @@ func QueryDBString(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (string, e
 			return "", tk.Errf("failed to scan: %v", errT.Error())
 		}
 
-		break
+		return strT, nil
 	}
 
-	return strT, nil
+	return "", tk.Errf("failed to get result: %v", "record not found")
 }
 
 // OneLineRecordToMap convert SQL result in [][]string (2 lines, first is the header) to map[string]string
