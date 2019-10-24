@@ -24,6 +24,17 @@ func ConnectDB(driverStrA string, connectStrA string) (*sql.DB, error) {
 	return dbT, nil
 }
 
+// ConnectDBNoPing connected the database(with no ping action), don't forget to close it(probably by defer function)
+func ConnectDBNoPing(driverStrA string, connectStrA string) (*sql.DB, error) {
+	dbT, errT := sql.Open(driverStrA, connectStrA)
+
+	if errT != nil {
+		return nil, tk.Errf("failed to open DB: %v", errT.Error())
+	}
+
+	return dbT, nil
+}
+
 // ExecV execute SQL statement, get the results(insert id and rows afftected), passing parameters is supported as well.
 func ExecV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int64, int64, error) {
 	resultT, errT := dbA.Exec(sqlStrA, argsA...)
