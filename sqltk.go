@@ -2,6 +2,7 @@ package sqltk
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/topxeq/tk"
 )
@@ -419,4 +420,9 @@ func OneLineRecordToMap(recA [][]string) map[string]string {
 	}
 
 	return mapT
+}
+
+// FormatSQLValue equivalent to strings.Replace(strA, "'", "''")
+func FormatSQLValue(strA string) string {
+	return strings.Replace(strA, "'", "''", -1)
 }
