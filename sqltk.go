@@ -186,17 +186,17 @@ func QueryDBNSS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, 
 	var rowCountT = 0
 	var columnSetT []string = nil
 
+	if columnSetT == nil {
+		columnSetT, errT = rowsT.Columns()
+		if errT != nil {
+			return nil, tk.Errf("failed to get columns of row %v: %v", rowCountT, errT.Error())
+		}
+
+		resultSet = append(resultSet, columnSetT)
+	}
+
 	for rowsT.Next() {
 		rowCountT++
-
-		if columnSetT == nil {
-			columnSetT, errT = rowsT.Columns()
-			if errT != nil {
-				return nil, tk.Errf("failed to get columns of row %v: %v", rowCountT, errT.Error())
-			}
-
-			resultSet = append(resultSet, columnSetT)
-		}
 
 		columnLenT := len(columnSetT)
 
