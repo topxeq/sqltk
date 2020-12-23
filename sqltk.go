@@ -422,6 +422,35 @@ func OneLineRecordToMap(recA [][]string) map[string]string {
 	return mapT
 }
 
+// RecordsToMapArray convert SQL result in [][]string (multi lines, first is the header) to []map[string]string
+func RecordsToMapArray(recA [][]string) []map[string]string {
+	if recA == nil {
+		return nil
+	}
+
+	lenT := len(recA)
+
+	if lenT < 1 {
+		return nil
+	}
+
+	lineLenT := len(recA[0])
+
+	aryT := make([]map[string]string, lenT-1)
+
+	for i := 1; i < lenT; i++ {
+		mapT := make(map[string]string, lenT)
+
+		for j := 0; j < lineLenT; j++ {
+			mapT[recA[0][j]] = recA[i][j]
+		}
+
+		aryT[i-1] = mapT
+	}
+
+	return aryT
+}
+
 // FormatSQLValue equivalent to strings.Replace(strA, "'", "''")
 func FormatSQLValue(strA string) string {
 	return strings.Replace(strA, "'", "''", -1)
