@@ -233,6 +233,78 @@ func QueryDBNSS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, 
 	return resultSet, nil
 }
 
+// QueryDBNSSF the same as QueryDBNSS, but use special format on float values, format with argument floatFormatA(i.e. %1.2f etc).
+func QueryDBNSSF(dbA *sql.DB, sqlStrA string, floatFormatA string, argsA ...interface{}) ([][]string, error) {
+	rowsT, errT := dbA.Query(sqlStrA, argsA...)
+
+	if errT != nil {
+		return nil, tk.Errf("failed to run query: %v", errT.Error())
+	}
+
+	defer rowsT.Close()
+
+	resultSet := make([][]string, 0)
+	var rowCountT = 0
+	var columnSetT []string = nil
+
+	if columnSetT == nil {
+		columnSetT, errT = rowsT.Columns()
+		if errT != nil {
+			return nil, tk.Errf("failed to get columns of row %v: %v", rowCountT, errT.Error())
+		}
+
+		resultSet = append(resultSet, columnSetT)
+	}
+
+	for rowsT.Next() {
+		rowCountT++
+
+		columnLenT := len(columnSetT)
+
+		var resultRow = make([]interface{}, columnLenT)
+		var resultRowP = make([]interface{}, columnLenT)
+		var resultRowS = make([]string, columnLenT)
+
+		for k := 0; k < columnLenT; k++ {
+			resultRowP[k] = &(resultRow[k])
+		}
+
+		errT = rowsT.Scan(resultRowP...)
+		if errT != nil {
+			return nil, tk.Errf("failed to scan %v: %v", rowCountT, errT.Error())
+		}
+
+		for k := 0; k < columnLenT; k++ {
+			if resultRow[k] == nil {
+				resultRowS[k] = ""
+				continue
+			}
+
+			v1T, okT := resultRow[k].(float64)
+			if okT {
+				resultRowS[k] = tk.Spr(floatFormatA, v1T)
+			} else {
+				v2T, okT := resultRow[k].(float32)
+				if okT {
+					resultRowS[k] = tk.Spr(floatFormatA, v2T)
+				} else {
+					resultRowS[k] = tk.Spr("%s", resultRow[k])
+				}
+			}
+
+		}
+
+		resultSet = append(resultSet, resultRowS)
+	}
+
+	errT = rowsT.Err()
+	if errT != nil {
+		return nil, tk.Errf("error occured while enumerating the result set: %v", errT.Error())
+	}
+
+	return resultSet, nil
+}
+
 // QueryDBNSV execute a SQL query and return result set(first row will be the column names), all values will be string type(ensure for some DBs, such as MYSQL with uf8_general_ci encoding), can handle null values, passing parameters is supported as well.
 func QueryDBNSV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
