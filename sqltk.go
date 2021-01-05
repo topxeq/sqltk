@@ -2,6 +2,7 @@ package sqltk
 
 import (
 	"database/sql"
+	"math"
 	"strings"
 
 	"github.com/topxeq/tk"
@@ -256,6 +257,11 @@ func QueryDBNSSF(dbA *sql.DB, sqlStrA string, floatFormatA string, argsA ...inte
 		resultSet = append(resultSet, columnSetT)
 	}
 
+	colTypesT, errT := rowsT.ColumnTypes()
+	if errT != nil {
+		return nil, tk.Errf("failed to get column types of row %v: %v", rowCountT, errT.Error())
+	}
+
 	for rowsT.Next() {
 		rowCountT++
 
@@ -280,18 +286,12 @@ func QueryDBNSSF(dbA *sql.DB, sqlStrA string, floatFormatA string, argsA ...inte
 				continue
 			}
 
-			v1T, okT := resultRow[k].(float64)
-			if okT {
-				resultRowS[k] = tk.Spr(floatFormatA, v1T)
+			if tk.InStrings(colTypesT[k].DatabaseTypeName(), "DOUBLE") {
+				// resultRowS[k] = tk.Spr(floatFormatA, resultRow[k].(float64))
+				resultRowS[k] = tk.Spr(floatFormatA, math.Round(tk.StrToFloat64(tk.Spr("%s", resultRow[k]), 0)*1000000)/1000000)
 			} else {
-				v2T, okT := resultRow[k].(float32)
-				if okT {
-					resultRowS[k] = tk.Spr(floatFormatA, v2T)
-				} else {
-					resultRowS[k] = tk.Spr("%s", resultRow[k])
-				}
+				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			}
-
 		}
 
 		resultSet = append(resultSet, resultRowS)
