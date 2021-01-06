@@ -235,7 +235,7 @@ func QueryDBNSS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, 
 }
 
 // QueryDBNSSF the same as QueryDBNSS, but use special format on float values, format with argument floatFormatA(i.e. %1.2f etc).
-func QueryDBNSSF(dbA *sql.DB, sqlStrA string, floatFormatA string, argsA ...interface{}) ([][]string, error) {
+func QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
@@ -285,10 +285,20 @@ func QueryDBNSSF(dbA *sql.DB, sqlStrA string, floatFormatA string, argsA ...inte
 				resultRowS[k] = ""
 				continue
 			}
+			// tk.Plvx(colTypesT[k].DatabaseTypeName())
 
-			if tk.InStrings(colTypesT[k].DatabaseTypeName(), "DOUBLE") {
+			typeNameT := colTypesT[k].DatabaseTypeName()
+
+			if tk.InStrings(typeNameT, "DOUBLE") {
 				// resultRowS[k] = tk.Spr(floatFormatA, resultRow[k].(float64))
-				resultRowS[k] = tk.Spr(floatFormatA, math.Round(tk.StrToFloat64(tk.Spr("%s", resultRow[k]), 0)*1000000)/1000000)
+				resultRowS[k] = tk.Spr("%v", math.Round(tk.StrToFloat64(tk.Spr("%s", resultRow[k]), 0)*1000000)/1000000)
+			} else if tk.InStrings(typeNameT, "DECIMAL") {
+				tmps := tk.Spr("%s", resultRow[k])
+				if tk.Contains(tmps, ".") {
+					tmps = strings.TrimRight(tmps, "0")
+				}
+
+				resultRowS[k] = tmps
 			} else {
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			}
