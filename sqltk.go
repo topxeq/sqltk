@@ -8,8 +8,28 @@ import (
 	"github.com/topxeq/tk"
 )
 
+var versionG = "0.9a"
+
+type SqlTK struct {
+	Version string
+}
+
+var SqlTKX = &SqlTK{Version: versionG}
+
+func (pA *SqlTK) NewSqlTK() *SqlTK {
+	return &SqlTK{Version: versionG}
+}
+
+var NewSqlTK = SqlTKX.NewSqlTK
+
+func (pA *SqlTK) GetVersion() string {
+	return pA.Version
+}
+
+var GetVersion = SqlTKX.GetVersion
+
 // ConnectDB connected the database, don't forget to close it(probably by defer function)
-func ConnectDB(driverStrA string, connectStrA string) (*sql.DB, error) {
+func (pA *SqlTK) ConnectDB(driverStrA string, connectStrA string) (*sql.DB, error) {
 	dbT, errT := sql.Open(driverStrA, connectStrA)
 
 	if errT != nil {
@@ -26,8 +46,10 @@ func ConnectDB(driverStrA string, connectStrA string) (*sql.DB, error) {
 	return dbT, nil
 }
 
+var ConnectDB = SqlTKX.ConnectDB
+
 // ConnectDBNoPing connected the database(with no ping action), don't forget to close it(probably by defer function)
-func ConnectDBNoPing(driverStrA string, connectStrA string) (*sql.DB, error) {
+func (pA *SqlTK) ConnectDBNoPing(driverStrA string, connectStrA string) (*sql.DB, error) {
 	dbT, errT := sql.Open(driverStrA, connectStrA)
 
 	if errT != nil {
@@ -37,8 +59,10 @@ func ConnectDBNoPing(driverStrA string, connectStrA string) (*sql.DB, error) {
 	return dbT, nil
 }
 
+var ConnectDBNoPing = SqlTKX.ConnectDBNoPing
+
 // ExecV execute SQL statement, get the results(insert id and rows afftected), passing parameters is supported as well.
-func ExecV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int64, int64, error) {
+func (pA *SqlTK) ExecV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int64, int64, error) {
 	resultT, errT := dbA.Exec(sqlStrA, argsA...)
 	if errT != nil {
 		return 0, 0, tk.Errf("failed to exec: %v", errT.Error())
@@ -62,8 +86,10 @@ func ExecV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int64, int64, err
 
 }
 
+var ExecV = SqlTKX.ExecV
+
 // QueryDBS execute a SQL query and return result set(first row will be the column names), all values will be string type, cannot handle null values, passing parameters is supported as well.
-func QueryDBS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
+func (pA *SqlTK) QueryDBS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
@@ -112,8 +138,10 @@ func QueryDBS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, er
 	return resultSet, nil
 }
 
+var QueryDBS = SqlTKX.QueryDBS
+
 // QueryDBNS execute a SQL query and return result set(first row will be the column names), all values will be string type, can handle null values, passing parameters is supported as well.
-func QueryDBNS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
+func (pA *SqlTK) QueryDBNS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
@@ -173,8 +201,10 @@ func QueryDBNS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, e
 	return resultSet, nil
 }
 
+var QueryDBNS = SqlTKX.QueryDBNS
+
 // QueryDBNSS execute a SQL query and return result set(first row will be the column names), all values will be string type(ensure for some DBs, such as MYSQL with uf8_general_ci encoding), can handle null values, passing parameters is supported as well.
-func QueryDBNSS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
+func (pA *SqlTK) QueryDBNSS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
@@ -234,8 +264,10 @@ func QueryDBNSS(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, 
 	return resultSet, nil
 }
 
+var QueryDBNSS = SqlTKX.QueryDBNSS
+
 // QueryDBNSSF the same as QueryDBNSS, but use special format on float values, format with argument floatFormatA(i.e. %1.2f etc).
-func QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
+func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
@@ -315,8 +347,10 @@ func QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string,
 	return resultSet, nil
 }
 
+var QueryDBNSSF = SqlTKX.QueryDBNSSF
+
 // QueryDBNSV execute a SQL query and return result set(first row will be the column names), all values will be string type(ensure for some DBs, such as MYSQL with uf8_general_ci encoding), can handle null values, passing parameters is supported as well.
-func QueryDBNSV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
+func (pA *SqlTK) QueryDBNSV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
@@ -376,8 +410,10 @@ func QueryDBNSV(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]string, 
 	return resultSet, nil
 }
 
+var QueryDBNSV = SqlTKX.QueryDBNSV
+
 // QueryDBI execute a SQL query and return result set(first row will be the column names), all values will be interface{} type, passing parameters is supported as well.
-func QueryDBI(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]interface{}, error) {
+func (pA *SqlTK) QueryDBI(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]interface{}, error) {
 
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
@@ -435,8 +471,10 @@ func QueryDBI(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([][]interface{
 	return resultSet, nil
 }
 
+var QueryDBI = SqlTKX.QueryDBI
+
 // QueryDBCount execute a SQL query for count(select count(*)), -1 indicates error, can handle null values, passing parameters is supported as well.
-func QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int, error) {
+func (pA *SqlTK) QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
@@ -459,8 +497,10 @@ func QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int, error
 	return countT, nil
 }
 
+var QueryDBCount = SqlTKX.QueryDBCount
+
 // QueryDBString execute a SQL query for a one string result, can handle null values, passing parameters is supported as well.
-func QueryDBString(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (string, error) {
+func (pA *SqlTK) QueryDBString(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (string, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
 	if errT != nil {
@@ -483,8 +523,10 @@ func QueryDBString(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (string, e
 	return "", tk.Errf("failed to get result: %v", "record not found")
 }
 
+var QueryDBString = SqlTKX.QueryDBString
+
 // OneLineRecordToMap convert SQL result in [][]string (2 lines, first is the header) to map[string]string
-func OneLineRecordToMap(recA [][]string) map[string]string {
+func (pA *SqlTK) OneLineRecordToMap(recA [][]string) map[string]string {
 	if recA == nil {
 		return nil
 	}
@@ -504,8 +546,10 @@ func OneLineRecordToMap(recA [][]string) map[string]string {
 	return mapT
 }
 
+var OneLineRecordToMap = SqlTKX.OneLineRecordToMap
+
 // RecordsToMapArray convert SQL result in [][]string (multi lines, first is the header) to []map[string]string
-func RecordsToMapArray(recA [][]string) []map[string]string {
+func (pA *SqlTK) RecordsToMapArray(recA [][]string) []map[string]string {
 	if recA == nil {
 		return nil
 	}
@@ -533,7 +577,11 @@ func RecordsToMapArray(recA [][]string) []map[string]string {
 	return aryT
 }
 
+var RecordsToMapArray = SqlTKX.RecordsToMapArray
+
 // FormatSQLValue equivalent to strings.Replace(strA, "'", "''")
-func FormatSQLValue(strA string) string {
+func (pA *SqlTK) FormatSQLValue(strA string) string {
 	return strings.Replace(strA, "'", "''", -1)
 }
+
+var FormatSQLValue = SqlTKX.FormatSQLValue
