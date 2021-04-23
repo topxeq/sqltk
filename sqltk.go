@@ -581,7 +581,11 @@ var RecordsToMapArray = SqlTKX.RecordsToMapArray
 
 // FormatSQLValue equivalent to strings.Replace(strA, "'", "''")
 func (pA *SqlTK) FormatSQLValue(strA string) string {
-	return strings.Replace(strA, "'", "''", -1)
+	strT := strings.Replace(strA, "\r", "\\r", -1)
+	strT = strings.Replace(strT, "\n", "\\n", -1)
+	strT = strings.Replace(strT, "'", "''", -1)
+
+	return strT
 }
 
 var FormatSQLValue = SqlTKX.FormatSQLValue
