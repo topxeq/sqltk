@@ -330,6 +330,10 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 					tmps = strings.TrimRight(tmps, "0")
 				}
 
+				if tk.EndsWith(tmps, ".") {
+					tmps = strings.TrimRight(tmps, ".")
+				}
+
 				resultRowS[k] = tmps
 			} else {
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
