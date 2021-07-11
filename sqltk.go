@@ -325,7 +325,16 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				// resultRowS[k] = tk.Spr(floatFormatA, resultRow[k].(float64))
 				resultRowS[k] = tk.Spr("%v", math.Round(tk.StrToFloat64(tk.Spr("%s", resultRow[k]), 0)*1000000)/1000000)
 			} else if tk.InStrings(typeNameT, "DECIMAL") {
+				// tk.Pl("ROW: %v, %v", typeNameT, resultRow[k])
 				tmps := tk.Spr("%s", resultRow[k])
+				if tk.StartsWith(tmps, "%!s") {
+					tmps = tk.Spr("%v", resultRow[k])
+				}
+
+				if tk.Contains(tmps, "e") {
+					tmps = tk.Spr("%v", tk.ToInt(resultRow[k]))
+				}
+
 				if tk.Contains(tmps, ".") {
 					tmps = strings.TrimRight(tmps, "0")
 				}
@@ -335,7 +344,21 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps
+			} else if tk.InStrings(typeNameT, "INTEGER", "integer") {
+				tmps := tk.Spr("%v", resultRow[k])
+				if tk.Contains(tmps, ".") {
+					tmps = strings.TrimRight(tmps, "0")
+				}
+
+				if tk.EndsWith(tmps, ".") {
+					tmps = strings.TrimRight(tmps, ".")
+				}
+
+				resultRowS[k] = tmps
+			} else if tk.InStrings(typeNameT, "text", "TIMESTAMP") {
+				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else {
+				// tk.Pl("ROW: %v, %v", typeNameT, resultRow[k])
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			}
 		}
@@ -593,3 +616,71 @@ func (pA *SqlTK) FormatSQLValue(strA string) string {
 }
 
 var FormatSQLValue = SqlTKX.FormatSQLValue
+
+func (pA *SqlTK) ConnectDBX(driverStrA string, connectStrA string) interface{} {
+	dbT, errT := ConnectDBNoPing(driverStrA, connectStrA)
+
+	if errT != nil {
+		return errT
+	}
+
+	return dbT
+}
+
+var ConnectDBX = SqlTKX.ConnectDBX
+
+func (pA *SqlTK) ExecDBX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	idT, affectT, errT := ExecV(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	return []int64{idT, affectT}
+}
+
+var ExecDBX = SqlTKX.ExecDBX
+
+func (pA *SqlTK) QueryDBX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBNSSF(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	if len(sqlRsT) < 1 {
+		return tk.Errf("invalid record length")
+	}
+
+	return tk.TableToMSSArray(sqlRsT)
+}
+
+var QueryDBX = SqlTKX.QueryDBX
+
+func (pA *SqlTK) QueryCountX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBCount(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	if sqlRsT < 0 {
+		return tk.Errf("result error: %v", sqlRsT)
+	}
+
+	return sqlRsT
+}
+
+var QueryCountX = SqlTKX.QueryCountX
+
+func (pA *SqlTK) QueryStringX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBCount(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	return sqlRsT
+}
+
+var QueryStringX = SqlTKX.QueryStringX
