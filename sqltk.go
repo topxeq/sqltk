@@ -344,7 +344,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps
-			} else if tk.InStrings(typeNameT, "INTEGER", "integer") {
+			} else if tk.InStrings(typeNameT, "INTEGER", "integer", "INT") {
 				tmps := tk.Spr("%v", resultRow[k])
 				if tk.Contains(tmps, ".") {
 					tmps = strings.TrimRight(tmps, "0")
@@ -359,7 +359,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else {
 				// tk.Pl("ROW: %v, %v", typeNameT, resultRow[k])
-				resultRowS[k] = tk.Spr("%s", resultRow[k])
+				resultRowS[k] = tk.Spr("%s", tk.ToStr(resultRow[k]))
 			}
 		}
 
