@@ -328,7 +328,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				// tk.Pl("ROW: %v, %v", typeNameT, resultRow[k])
 				tmps := tk.Spr("%s", resultRow[k])
 				if tk.StartsWith(tmps, "%!s") {
-					tmps = tk.Spr("%v", resultRow[k])
+					tmps = tk.Spr("%T- %v", resultRow[k], resultRow[k])
 				}
 
 				if tk.Contains(tmps, "e") {
@@ -344,8 +344,12 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps
-			} else if tk.InStrings(typeNameT, "INTEGER", "integer", "INT") {
+			} else if tk.InStrings(typeNameT, "INTEGER", "integer", "INT", "BIGINT") {
 				tmps := tk.Spr("%v", resultRow[k])
+				if tk.Contains(tmps, "[") {
+					tmps = tk.ToStr(resultRow[k])
+				}
+
 				if tk.Contains(tmps, ".") {
 					tmps = strings.TrimRight(tmps, "0")
 				}
@@ -355,9 +359,10 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps
-			} else if tk.InStrings(typeNameT, "text", "TIMESTAMP") {
+			} else if tk.InStrings(typeNameT, "text", "VARCHAR", "VARCHAR2", "TIMESTAMP", "DATETIME") {
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else {
+				tk.Pl("ROW: %v, %T, %v", typeNameT, resultRow[k], resultRow[k])
 				// tk.Pl("ROW: %v, %v", typeNameT, resultRow[k])
 				resultRowS[k] = tk.Spr("%s", tk.ToStr(resultRow[k]))
 			}
