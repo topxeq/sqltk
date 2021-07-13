@@ -328,7 +328,8 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				// tk.Pl("ROW: %v, %v", typeNameT, resultRow[k])
 				tmps := tk.Spr("%s", resultRow[k])
 				if tk.StartsWith(tmps, "%!s") {
-					tmps = tk.Spr("%T- %v", resultRow[k], resultRow[k])
+					tk.Pl("ROW: %v, %T, %v", typeNameT, resultRow[k], resultRow[k])
+					tmps = tk.Spr("%v", resultRow[k])
 				}
 
 				if tk.Contains(tmps, "e") {
