@@ -506,7 +506,7 @@ func (pA *SqlTK) QueryDBI(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([]
 
 var QueryDBI = SqlTKX.QueryDBI
 
-// QueryDBCount execute a SQL query for count(select count(*)), -1 indicates error, can handle null values, passing parameters is supported as well.
+// QueryDBCount execute a SQL query for count(select count(*)), -1 indicates error, can handle null values, passing parameters is supported as well. Also used to get a single int result from SQL query.
 func (pA *SqlTK) QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
 
@@ -531,6 +531,34 @@ func (pA *SqlTK) QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{})
 }
 
 var QueryDBCount = SqlTKX.QueryDBCount
+
+// QueryDBFloat execute a SQL query for get a single float value, can handle null values, passing parameters is supported as well.
+func (pA *SqlTK) QueryDBFloat(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (float64, error) {
+	rowsT, errT := dbA.Query(sqlStrA, argsA...)
+
+	if errT != nil {
+		return 0, tk.Errf("failed to run query: %v", errT.Error())
+	}
+
+	defer rowsT.Close()
+
+	var countT float64 = 0
+
+	for rowsT.Next() {
+		errT = rowsT.Scan(&countT)
+		if errT != nil {
+			return 0, tk.Errf("failed to scan: %v", errT.Error())
+		}
+
+		break
+	}
+
+	countT = math.Round(countT*1000000) / 1000000
+
+	return countT, nil
+}
+
+var QueryDBFloat = SqlTKX.QueryDBFloat
 
 // QueryDBString execute a SQL query for a one string result, can handle null values, passing parameters is supported as well.
 func (pA *SqlTK) QueryDBString(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (string, error) {
@@ -678,6 +706,18 @@ func (pA *SqlTK) QueryCountX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 }
 
 var QueryCountX = SqlTKX.QueryCountX
+
+func (pA *SqlTK) QueryFloatX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBFloat(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	return sqlRsT
+}
+
+var QueryFloatX = SqlTKX.QueryFloatX
 
 func (pA *SqlTK) QueryStringX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
 	sqlRsT, errT := QueryDBCount(dbA, sqlStrA, argsA...)
