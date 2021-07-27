@@ -609,6 +609,22 @@ func (pA *SqlTK) OneLineRecordToMap(recA [][]string) map[string]string {
 
 var OneLineRecordToMap = SqlTKX.OneLineRecordToMap
 
+func (pA *SqlTK) RecordsToMapArrayMap(recA [][]string, keyA string) map[string][]map[string]string {
+	if recA == nil {
+		return nil
+	}
+
+	lenT := len(recA)
+
+	if lenT < 1 {
+		return nil
+	}
+
+	return tk.TableToMSSMapArray(recA, keyA)
+}
+
+var RecordsToMapArrayMap = SqlTKX.RecordsToMapArrayMap
+
 // RecordsToMapArray convert SQL result in [][]string (multi lines, first is the header) to []map[string]string
 func (pA *SqlTK) RecordsToMapArray(recA [][]string) []map[string]string {
 	if recA == nil {
@@ -690,6 +706,54 @@ func (pA *SqlTK) QueryDBX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) int
 }
 
 var QueryDBX = SqlTKX.QueryDBX
+
+func (pA *SqlTK) QueryDBRecsX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBNSSF(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	if len(sqlRsT) < 1 {
+		return tk.Errf("invalid record length")
+	}
+
+	return sqlRsT
+}
+
+var QueryDBRecsX = SqlTKX.QueryDBRecsX
+
+func (pA *SqlTK) QueryDBMapX(dbA *sql.DB, sqlStrA string, idA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBNSSF(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	if len(sqlRsT) < 1 {
+		return tk.Errf("invalid record length")
+	}
+
+	return tk.TableToMSSMap(sqlRsT, idA)
+}
+
+var QueryDBMapX = SqlTKX.QueryDBMapX
+
+func (pA *SqlTK) QueryDBMapArrayX(dbA *sql.DB, sqlStrA string, idA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBNSSF(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	if len(sqlRsT) < 1 {
+		return tk.Errf("invalid record length")
+	}
+
+	return tk.TableToMSSMapArray(sqlRsT, idA)
+}
+
+var QueryDBMapArrayX = SqlTKX.QueryDBMapArrayX
 
 func (pA *SqlTK) QueryCountX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
 	sqlRsT, errT := QueryDBCount(dbA, sqlStrA, argsA...)
