@@ -2,8 +2,10 @@ package sqltk
 
 import (
 	"database/sql"
+	"fmt"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/topxeq/tk"
 )
@@ -320,11 +322,23 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 			// tk.Plvx(colTypesT[k].DatabaseTypeName())
 
 			typeNameT := colTypesT[k].DatabaseTypeName()
+			goTypeT := fmt.Sprintf("%T", resultRow[k])
 
 			if tk.InStrings(typeNameT, "DOUBLE") {
 				// resultRowS[k] = tk.Spr(floatFormatA, resultRow[k].(float64))
 				resultRowS[k] = tk.Spr("%v", math.Round(tk.StrToFloat64(tk.Spr("%s", resultRow[k]), 0)*1000000)/1000000)
-			} else if tk.InStrings(typeNameT, "DECIMAL") {
+			} else if tk.InStrings(typeNameT, "NUMBER") && goTypeT == "int64" {
+				tmps0 := tk.Spr("%v", resultRow[k])
+				if tk.Contains(tmps0, ".") {
+					tmps0 = strings.TrimRight(tmps0, "0")
+				}
+
+				if tk.EndsWith(tmps0, ".") {
+					tmps0 = strings.TrimRight(tmps0, ".")
+				}
+
+				resultRowS[k] = tmps0
+			} else if tk.InStrings(typeNameT, "DECIMAL", "NUMBER") {
 				// tk.Pl("ROW: %v, %v", typeNameT, resultRow[k])
 				tmps := tk.Spr("%s", resultRow[k])
 				if tk.StartsWith(tmps, "%!s") {
@@ -360,7 +374,16 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps
-			} else if tk.InStrings(typeNameT, "text", "VARCHAR", "VARCHAR2", "TIMESTAMP", "DATETIME") {
+			} else if tk.InStrings(typeNameT, "DATE") && goTypeT == "time.Time" {
+				timeT, ok := resultRow[k].(time.Time)
+
+				if ok {
+					resultRowS[k] = tk.FormatTime(timeT)
+				} else {
+					resultRowS[k] = tk.Spr("%v", resultRow[k])
+				}
+
+			} else if tk.InStrings(typeNameT, "text", "CHAR", "VARCHAR", "VARCHAR2", "NVARCHAR2", "TIMESTAMP", "DATETIME") {
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else {
 				tk.Pl("ROW: %v, %T, %v", typeNameT, resultRow[k], resultRow[k])
