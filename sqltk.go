@@ -383,7 +383,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 					resultRowS[k] = tk.Spr("%v", resultRow[k])
 				}
 
-			} else if tk.InStrings(typeNameT, "text", "CHAR", "VARCHAR", "VARCHAR2", "NVARCHAR2", "TIMESTAMP", "DATETIME") {
+			} else if tk.InStrings(typeNameT, "text", "TEXT", "CHAR", "VARCHAR", "VARCHAR2", "NVARCHAR2", "TIMESTAMP", "DATETIME") {
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else {
 				tk.Pl("ROW: %v, %T, %v", typeNameT, resultRow[k], resultRow[k])
