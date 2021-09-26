@@ -632,6 +632,32 @@ func (pA *SqlTK) OneLineRecordToMap(recA [][]string) map[string]string {
 
 var OneLineRecordToMap = SqlTKX.OneLineRecordToMap
 
+// OneColumnRecordsToArray convert SQL result in [][]string (several lines, first is the header, only one column per line) to []string
+func (pA *SqlTK) OneColumnRecordsToArray(recsA [][]string) []string {
+	if recsA == nil {
+		return nil
+	}
+
+	if len(recsA) < 1 {
+		return nil
+	}
+
+	lenT := len(recsA)
+
+	aryT := make([]string, 0, lenT)
+
+	for i := 0; i < lenT; i++ {
+		if i == 0 {
+			continue
+		}
+		aryT = append(aryT, recsA[i][0])
+	}
+
+	return aryT
+}
+
+var OneColumnRecordsToArray = SqlTKX.OneColumnRecordsToArray
+
 func (pA *SqlTK) RecordsToMapArrayMap(recA [][]string, keyA string) map[string][]map[string]string {
 	if recA == nil {
 		return nil
