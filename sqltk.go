@@ -843,3 +843,10 @@ func (pA *SqlTK) QueryStringX(dbA *sql.DB, sqlStrA string, argsA ...interface{})
 }
 
 var QueryStringX = SqlTKX.QueryStringX
+
+func (pA *SqlTK) CloseDBX(dbA *sql.DB) error {
+
+	return dbA.Close()
+}
+
+var CloseDBX = SqlTKX.CloseDBX
