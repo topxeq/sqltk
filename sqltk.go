@@ -833,7 +833,7 @@ func (pA *SqlTK) QueryFloatX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 var QueryFloatX = SqlTKX.QueryFloatX
 
 func (pA *SqlTK) QueryStringX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
-	sqlRsT, errT := QueryDBCount(dbA, sqlStrA, argsA...)
+	sqlRsT, errT := QueryDBString(dbA, sqlStrA, argsA...)
 
 	if errT != nil {
 		return errT
