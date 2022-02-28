@@ -10,7 +10,7 @@ import (
 	"github.com/topxeq/tk"
 )
 
-var versionG = "0.9a"
+var versionG = "v0.9.1"
 
 type SqlTK struct {
 	Version string
