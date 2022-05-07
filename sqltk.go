@@ -850,3 +850,39 @@ func (pA *SqlTK) CloseDBX(dbA *sql.DB) error {
 }
 
 var CloseDBX = SqlTKX.CloseDBX
+
+func (pA *SqlTK) BeginTransX(dbA *sql.DB) interface{} {
+
+	txT, errT := dbA.Begin()
+	if errT != nil {
+		return errT
+	}
+
+	return txT
+}
+
+var BeginTransX = SqlTKX.BeginTransX
+
+func (pA *SqlTK) PrepareX(transA *sql.Tx, sqlA string) interface{} {
+
+	stmtT, errT := transA.Prepare(sqlA)
+	if errT != nil {
+		return errT
+	}
+
+	return stmtT
+}
+
+var PrepareX = SqlTKX.PrepareX
+
+func (pA *SqlTK) CommitX(transA *sql.Tx, sqlA string) interface{} {
+
+	errT := transA.Commit()
+	if errT != nil {
+		return errT
+	}
+
+	return nil
+}
+
+var CommitX = SqlTKX.CommitX
