@@ -383,7 +383,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 					resultRowS[k] = tk.Spr("%v", resultRow[k])
 				}
 
-			} else if tk.InStrings(typeNameT, "text", "TEXT", "CHAR", "VARCHAR", "VARCHAR2", "NVARCHAR2", "TIMESTAMP", "DATETIME") {
+			} else if tk.InStrings(typeNameT, "text", "TEXT", "CHAR", "NCHAR", "VARCHAR", "VARCHAR2", "NVARCHAR2", "TIMESTAMP", "DATETIME") {
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else {
 				if !tk.InStrings(typeNameT, "CLOB") {
@@ -706,7 +706,7 @@ func (pA *SqlTK) RecordsToMapArray(recA [][]string) []map[string]string {
 
 var RecordsToMapArray = SqlTKX.RecordsToMapArray
 
-// FormatSQLValue equivalent to strings.Replace(strA, "'", "''")
+// FormatSQLValue equivalent to strings.Replace(strA, "'", "”")
 func (pA *SqlTK) FormatSQLValue(strA string) string {
 	strT := strings.Replace(strA, "\r", "\\r", -1)
 	strT = strings.Replace(strT, "\n", "\\n", -1)
