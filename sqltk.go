@@ -717,6 +717,41 @@ func (pA *SqlTK) FormatSQLValue(strA string) string {
 
 var FormatSQLValue = SqlTKX.FormatSQLValue
 
+func (pA *SqlTK) ListToSQLList(vA interface{}) string {
+	bufT := new(strings.Builder)
+
+	bufT.WriteString("(")
+
+	switch nv := vA.(type) {
+	case []string:
+		for i, v := range nv {
+			if i > 0 {
+				bufT.WriteString(",")
+			}
+			bufT.WriteString("'")
+			v = strings.Replace(v, "'", "''", -1)
+			bufT.WriteString(v)
+			bufT.WriteString("'")
+		}
+	case []interface{}:
+		for i, v := range nv {
+			if i > 0 {
+				bufT.WriteString(",")
+			}
+			bufT.WriteString("'")
+			vs := strings.Replace(tk.ToStr(v), "'", "''", -1)
+			bufT.WriteString(vs)
+			bufT.WriteString("'")
+		}
+	}
+
+	bufT.WriteString(")")
+
+	return bufT.String()
+}
+
+var ListToSQLList = SqlTKX.ListToSQLList
+
 func (pA *SqlTK) ConnectDBX(driverStrA string, connectStrA string) interface{} {
 	dbT, errT := ConnectDBNoPing(driverStrA, connectStrA)
 
