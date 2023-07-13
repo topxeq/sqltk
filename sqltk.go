@@ -10,7 +10,7 @@ import (
 	"github.com/topxeq/tk"
 )
 
-var versionG = "v0.9.2"
+var versionG = "v0.9.3"
 
 type SqlTK struct {
 	Version string
@@ -791,6 +791,22 @@ func (pA *SqlTK) QueryDBX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) int
 }
 
 var QueryDBX = SqlTKX.QueryDBX
+
+func (pA *SqlTK) QueryDBOrderedX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBNSSF(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	if len(sqlRsT) < 1 {
+		return tk.Errf("invalid record length")
+	}
+
+	return tk.TableToOrderedMapArray(sqlRsT)
+}
+
+var QueryDBOrderedX = SqlTKX.QueryDBOrderedX
 
 func (pA *SqlTK) QueryDBRecsX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
 	sqlRsT, errT := QueryDBNSSF(dbA, sqlStrA, argsA...)
