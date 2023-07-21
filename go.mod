@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.6
-	github.com/topxeq/tk v1.0.1
+	github.com/topxeq/tk v1.0.6
 )
 
-replace github.com/topxeq/tk v1.0.1 => ../tk
+replace github.com/topxeq/tk v1.0.6 => ../tk
