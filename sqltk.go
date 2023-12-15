@@ -325,6 +325,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 			goTypeT := fmt.Sprintf("%T", resultRow[k])
 
 			if tk.InStrings(typeNameT, "DOUBLE") {
+				// tk.Pl("DOUBLE: %#v", resultRow[k])
 				// resultRowS[k] = tk.Spr(floatFormatA, resultRow[k].(float64))
 				resultRowS[k] = tk.Spr("%v", math.Round(tk.StrToFloat64(tk.Spr("%s", resultRow[k]), 0)*1000000)/1000000)
 			} else if tk.InStrings(typeNameT, "NUMBER") && goTypeT == "int64" {
@@ -347,7 +348,11 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				if tk.Contains(tmps, "e") {
-					tmps = tk.Spr("%v", tk.ToInt(resultRow[k]))
+					if goTypeT == "float64" || goTypeT == "float32" {
+						tmps = tk.Spr("%f", tk.ToFloat(resultRow[k]))
+					} else {
+						tmps = tk.Spr("%v", tk.ToInt(resultRow[k]))
+					}
 				}
 
 				if tk.Contains(tmps, ".") {
