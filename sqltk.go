@@ -341,7 +341,14 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				resultRowS[k] = tmps0
 			} else if tk.InStrings(typeNameT, "DECIMAL", "NUMBER") {
 				// tk.Pl("ROW: %v, %v", typeNameT, resultRow[k])
-				tmps := tk.Spr("%s", resultRow[k])
+				var tmps string
+
+				if goTypeT == "float64" || goTypeT == "float32" {
+					tmps = tk.Spr("%f", resultRow[k])
+				} else {
+					tmps = tk.Spr("%s", resultRow[k])
+				}
+
 				if tk.StartsWith(tmps, "%!s") {
 					tk.Pl("ROW: %v, %T, %v", typeNameT, resultRow[k], resultRow[k])
 					tmps = tk.Spr("%v", resultRow[k])
