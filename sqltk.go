@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/topxeq/tk"
+	tk "github.com/topxeq/tkc"
 )
 
 var versionG = "v0.9.3"

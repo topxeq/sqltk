@@ -5,7 +5,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/topxeq/tk"
+	tk "github.com/topxeq/tkc"
 )
 
 // use SQLite3 for test
