@@ -1,10 +1,10 @@
 module github.com/topxeq/sqltk
 
-go 1.22.4
+go 1.22.3
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.6
-	github.com/topxeq/tkc v0.0.0-20240618010942-dee68c50edd5
+	github.com/topxeq/tkc v0.0.0-20240629060520-851c8acaf153
 )
 
 require (
