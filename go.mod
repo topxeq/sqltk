@@ -4,7 +4,7 @@ go 1.22.3
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.6
-	github.com/topxeq/tkc v0.0.0-20240629060520-851c8acaf153
+	github.com/topxeq/tkc v0.0.0-20240629061048-5a695a0b6bab
 )
 
 require (
@@ -56,7 +56,7 @@ require (
 	github.com/yuin/goldmark v1.7.2 // indirect
 	github.com/yuin/goldmark-highlighting v0.0.0-20220208100518-594be1970594 // indirect
 	golang.org/x/crypto v0.24.0 // indirect
-	golang.org/x/image v0.17.0 // indirect
+	golang.org/x/image v0.18.0 // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.21.0 // indirect
