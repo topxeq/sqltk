@@ -386,6 +386,17 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps
+			} else if strings.HasPrefix(typeNameT, "INT") && goTypeT == "int64" {
+				tmps0 := tk.Spr("%v", resultRow[k])
+				if tk.Contains(tmps0, ".") {
+					tmps0 = strings.TrimRight(tmps0, "0")
+				}
+
+				if tk.EndsWith(tmps0, ".") {
+					tmps0 = strings.TrimRight(tmps0, ".")
+				}
+
+				resultRowS[k] = tmps0
 			} else if tk.InStrings(typeNameT, "DATE") && goTypeT == "time.Time" {
 				timeT, ok := resultRow[k].(time.Time)
 
