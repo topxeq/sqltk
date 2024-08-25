@@ -350,7 +350,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				if tk.StartsWith(tmps, "%!s") {
-					tk.Pl("ROW: %v, %T, %v", typeNameT, resultRow[k], resultRow[k])
+					tk.Pl("DECIMAL ROW: %v, %T, %v(%v)", typeNameT, resultRow[k], resultRow[k], sqlStrA)
 					tmps = tk.Spr("%v", resultRow[k])
 				}
 
@@ -410,7 +410,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else {
 				if !tk.InStrings(typeNameT, "CLOB") {
-					tk.Pl("ROW: %v, %T, %v", typeNameT, resultRow[k], resultRow[k])
+					tk.Pl("ROW: %v, %T, %v(%v)", typeNameT, resultRow[k], resultRow[k], sqlStrA)
 				}
 				resultRowS[k] = tk.Spr("%s", tk.ToStr(resultRow[k]))
 			}
