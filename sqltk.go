@@ -397,7 +397,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps0
-			} else if tk.InStrings(typeNameT, "DATE") && goTypeT == "time.Time" {
+			} else if tk.InStrings(typeNameT, "DATE", "TimeStampDTY") && goTypeT == "time.Time" {
 				timeT, ok := resultRow[k].(time.Time)
 
 				if ok {
