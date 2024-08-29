@@ -410,7 +410,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else {
 				if !tk.InStrings(typeNameT, "CLOB") {
-					tk.Pl("ROW: %v, %T, %v(%v)", typeNameT, resultRow[k], resultRow[k], sqlStrA)
+					tk.Pl("ROW(Col: %v): %v, %T, %v(%v)", columnSetT[k], typeNameT, resultRow[k], resultRow[k], sqlStrA)
 				}
 				resultRowS[k] = tk.Spr("%s", tk.ToStr(resultRow[k]))
 			}
