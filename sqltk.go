@@ -10,7 +10,7 @@ import (
 	tk "github.com/topxeq/tkc"
 )
 
-var versionG = "v0.9.3"
+var versionG = "v0.9.5"
 
 type SqlTK struct {
 	Version string
@@ -372,6 +372,21 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 
 				resultRowS[k] = tmps
 			} else if tk.InStrings(typeNameT, "INTEGER", "integer", "INT", "BIGINT") {
+				tmps := tk.Spr("%v", resultRow[k])
+				if tk.Contains(tmps, "[") {
+					tmps = tk.ToStr(resultRow[k])
+				}
+
+				if tk.Contains(tmps, ".") {
+					tmps = strings.TrimRight(tmps, "0")
+				}
+
+				if tk.EndsWith(tmps, ".") {
+					tmps = strings.TrimRight(tmps, ".")
+				}
+
+				resultRowS[k] = tmps
+			} else if tk.InStrings(typeNameT, "UNSIGNED INT") {
 				tmps := tk.Spr("%v", resultRow[k])
 				if tk.Contains(tmps, "[") {
 					tmps = tk.ToStr(resultRow[k])
