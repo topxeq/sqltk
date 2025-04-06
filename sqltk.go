@@ -371,7 +371,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps
-			} else if tk.InStrings(typeNameT, "INTEGER", "integer", "INT", "BIGINT") {
+			} else if tk.InStrings(typeNameT, "INTEGER", "integer", "INT", "BIGINT", "TINYINT") {
 				tmps := tk.Spr("%v", resultRow[k])
 				if tk.Contains(tmps, "[") {
 					tmps = tk.ToStr(resultRow[k])
@@ -386,7 +386,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				resultRowS[k] = tmps
-			} else if tk.InStrings(typeNameT, "UNSIGNED INT") {
+			} else if tk.InStrings(typeNameT, "UNSIGNED INT", "UNSIGNED TINYINT") {
 				tmps := tk.Spr("%v", resultRow[k])
 				if tk.Contains(tmps, "[") {
 					tmps = tk.ToStr(resultRow[k])
