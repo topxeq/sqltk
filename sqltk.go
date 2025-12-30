@@ -10,7 +10,7 @@ import (
 	tk "github.com/topxeq/tkc"
 )
 
-var versionG = "v0.9.5"
+var versionG = "v0.9.6"
 
 type SqlTK struct {
 	Version string
@@ -423,6 +423,8 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 
 			} else if tk.InStrings(typeNameT, "text", "TEXT", "CHAR", "NCHAR", "VARCHAR", "VARCHAR2", "NVARCHAR2", "TIMESTAMP", "DATETIME") {
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
+			} else if tk.InStrings(typeNameT, "IMAGE") {
+				resultRowS[k] = tk.Spr("%s", tk.ToStr(resultRow[k]))
 			} else {
 				if !tk.InStrings(typeNameT, "CLOB") {
 					tk.Pl("ROW(Col: %v): %v, %T, %v(%v)", columnSetT[k], typeNameT, resultRow[k], resultRow[k], sqlStrA)
