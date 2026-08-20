@@ -350,7 +350,7 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				}
 
 				if tk.StartsWith(tmps, "%!s") {
-					tk.Pl("DECIMAL ROW: %v, %T, %v(%v)", typeNameT, resultRow[k], resultRow[k], sqlStrA)
+					//					tk.Pl("DECIMAL ROW: %v, %T, %v(%v)", typeNameT, resultRow[k], resultRow[k], sqlStrA)
 					tmps = tk.Spr("%v", resultRow[k])
 				}
 
@@ -425,9 +425,27 @@ func (pA *SqlTK) QueryDBNSSF(dbA *sql.DB, sqlStrA string, argsA ...interface{}) 
 				resultRowS[k] = tk.Spr("%s", resultRow[k])
 			} else if tk.InStrings(typeNameT, "IMAGE") {
 				resultRowS[k] = tk.Spr("%s", tk.ToStr(resultRow[k]))
+			} else if typeNameT == "" {
+				// sqlite PRAGMA 查询(如 PRAGMA table_info)、SELECT 表达式列等无声明类型
+				switch goTypeT {
+				case "int64", "int", "int32":
+					resultRowS[k] = tk.Spr("%v", resultRow[k])
+				case "float64", "float32":
+					tmps := tk.Spr("%v", resultRow[k])
+					if tk.Contains(tmps, ".") {
+						tmps = strings.TrimRight(tmps, "0")
+					}
+					if tk.EndsWith(tmps, ".") {
+						tmps = strings.TrimRight(tmps, ".")
+					}
+					resultRowS[k] = tmps
+				default:
+					// string / []byte 等，与原 else 兜底行为完全一致
+					resultRowS[k] = tk.Spr("%s", tk.ToStr(resultRow[k]))
+				}
 			} else {
 				if !tk.InStrings(typeNameT, "CLOB") {
-					tk.Pl("ROW(Col: %v): %v, %T, %v(%v)", columnSetT[k], typeNameT, resultRow[k], resultRow[k], sqlStrA)
+					//					tk.Pl("ROW(Col: %v): %v, %T, %v(%v)", columnSetT[k], typeNameT, resultRow[k], resultRow[k], sqlStrA)
 				}
 				resultRowS[k] = tk.Spr("%s", tk.ToStr(resultRow[k]))
 			}
