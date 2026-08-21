@@ -597,7 +597,7 @@ func (pA *SqlTK) QueryDBIX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) in
 	}
 
 	if len(sqlRsT) < 1 {
-		return tk.Errf("invalid record length")
+		return []map[string]interface{}{}
 	}
 
 	columnSetT := sqlRsT[0]
@@ -636,7 +636,7 @@ func (pA *SqlTK) QueryDBRecsIX(dbA *sql.DB, sqlStrA string, argsA ...interface{}
 	}
 
 	if len(sqlRsT) < 1 {
-		return tk.Errf("invalid record length")
+		return [][]interface{}{}
 	}
 
 	resultSet := make([][]interface{}, len(sqlRsT))
