@@ -588,6 +588,76 @@ func (pA *SqlTK) QueryDBI(dbA *sql.DB, sqlStrA string, argsA ...interface{}) ([]
 
 var QueryDBI = SqlTKX.QueryDBI
 
+// QueryDBIX execute a SQL query and return result set as []map[string]interface{} (each row is a map with column names as keys), values keep original types ([]byte converted to string), passing parameters is supported as well.
+func (pA *SqlTK) QueryDBIX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBI(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	if len(sqlRsT) < 1 {
+		return tk.Errf("invalid record length")
+	}
+
+	columnSetT := sqlRsT[0]
+	rowsT := sqlRsT[1:]
+
+	resultSet := make([]map[string]interface{}, 0, len(rowsT))
+	for _, rowT := range rowsT {
+		rowMapT := make(map[string]interface{}, len(columnSetT))
+		for k, colNameT := range columnSetT {
+			var valueT interface{} = nil
+			if k < len(rowT) {
+				valueT = rowT[k]
+			}
+
+			if bsT, ok := valueT.([]byte); ok {
+				valueT = string(bsT)
+			}
+
+			rowMapT[tk.Spr("%v", colNameT)] = valueT
+		}
+
+		resultSet = append(resultSet, rowMapT)
+	}
+
+	return resultSet
+}
+
+var QueryDBIX = SqlTKX.QueryDBIX
+
+// QueryDBRecsIX execute a SQL query and return result set as [][]interface{} (first row will be the column names), values keep original types ([]byte converted to string), passing parameters is supported as well.
+func (pA *SqlTK) QueryDBRecsIX(dbA *sql.DB, sqlStrA string, argsA ...interface{}) interface{} {
+	sqlRsT, errT := QueryDBI(dbA, sqlStrA, argsA...)
+
+	if errT != nil {
+		return errT
+	}
+
+	if len(sqlRsT) < 1 {
+		return tk.Errf("invalid record length")
+	}
+
+	resultSet := make([][]interface{}, len(sqlRsT))
+	for i, rowT := range sqlRsT {
+		newRowT := make([]interface{}, len(rowT))
+		for k, valueT := range rowT {
+			if bsT, ok := valueT.([]byte); ok {
+				newRowT[k] = string(bsT)
+			} else {
+				newRowT[k] = valueT
+			}
+		}
+
+		resultSet[i] = newRowT
+	}
+
+	return resultSet
+}
+
+var QueryDBRecsIX = SqlTKX.QueryDBRecsIX
+
 // QueryDBCount execute a SQL query for count(select count(*)), -1 indicates error, can handle null values, passing parameters is supported as well. Also used to get a single int result from SQL query.
 func (pA *SqlTK) QueryDBCount(dbA *sql.DB, sqlStrA string, argsA ...interface{}) (int, error) {
 	rowsT, errT := dbA.Query(sqlStrA, argsA...)
